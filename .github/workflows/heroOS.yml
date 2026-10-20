@@ -1,0 +1,42 @@
+name: Build HeroOS ISO
+
+"on":
+  workflow_dispatch:
+  push:
+    paths:
+      - "build-heroos.sh"
+      - ".github/workflows/build-heroos.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build HeroOS ISO
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Check build script
+        shell: bash
+        run: |
+          if [[ ! -f build-heroos.sh ]]; then
+            echo "ERROR: build-heroos.sh must be in the repository root."
+            exit 1
+          fi
+          chmod +x build-heroos.sh
+
+      - name: Build ISO
+        shell: bash
+        run: sudo bash ./build-heroos.sh
+
+      - name: Upload HeroOS ISO
+        uses: actions/upload-artifact@v7
+        with:
+          name: HeroOS-ISO
+          path: HeroOS.iso
+          if-no-files-found: error
+          retention-days: 7
